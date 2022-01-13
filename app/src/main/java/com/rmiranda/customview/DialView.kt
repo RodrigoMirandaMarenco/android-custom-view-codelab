@@ -4,7 +4,11 @@ import android.content.Context
 import android.graphics.*
 import android.util.AttributeSet
 import android.view.View
+import android.view.accessibility.AccessibilityNodeInfo
 import androidx.core.content.withStyledAttributes
+import androidx.core.view.AccessibilityDelegateCompat
+import androidx.core.view.ViewCompat
+import androidx.core.view.accessibility.AccessibilityNodeInfoCompat
 import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.min
@@ -40,6 +44,21 @@ class DialView @JvmOverloads constructor(
             fanSpeedMidColor = getColor(R.styleable.DialView_fanColor2, 0)
             fanSpeedHighColor = getColor(R.styleable.DialView_fanColor3, 0)
         }
+        updateContentDescription()
+        ViewCompat.setAccessibilityDelegate(this, object : AccessibilityDelegateCompat() {
+
+            override fun onInitializeAccessibilityNodeInfo(
+                host: View?,
+                info: AccessibilityNodeInfoCompat?
+            ) {
+                super.onInitializeAccessibilityNodeInfo(host, info)
+                val customClick = AccessibilityNodeInfoCompat.AccessibilityActionCompat(
+                    AccessibilityNodeInfo.ACTION_CLICK,
+                    context.getString(if (fanSpeed != FanSpeed.HIGH) R.string.change else R.string.reset)
+                )
+                info?.addAction(customClick)
+            }
+        })
     }
 
     override fun performClick() =
@@ -47,7 +66,7 @@ class DialView @JvmOverloads constructor(
             true
         } else {
             fanSpeed = fanSpeed.next()
-            contentDescription = resources.getString(fanSpeed.label)
+            updateContentDescription()
             invalidate()
             true
         }
@@ -80,6 +99,10 @@ class DialView @JvmOverloads constructor(
             val label = resources.getString(i.label)
             canvas?.drawText(label, pointPosition.x, pointPosition.y, paint)
         }
+    }
+
+    fun updateContentDescription() {
+        contentDescription = resources.getString(fanSpeed.label)
     }
 
     private fun PointF.computeXYForSpeed(pos: FanSpeed, radius: Float) {
