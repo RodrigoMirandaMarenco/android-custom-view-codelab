@@ -28,6 +28,20 @@ class DialView @JvmOverloads constructor(
         typeface = Typeface.create("", Typeface.BOLD)
     }
 
+    init {
+        isClickable = true
+    }
+
+    override fun performClick() =
+        if (super.performClick()) {
+            true
+        } else {
+            fanSpeed = fanSpeed.next()
+            contentDescription = resources.getString(fanSpeed.label)
+            invalidate()
+            true
+        }
+
     override fun onSizeChanged(width: Int, height: Int, oldWidth: Int, oldHeight: Int) {
         radius = (min(width, height) / 2.0 * 0.8).toFloat()
     }
