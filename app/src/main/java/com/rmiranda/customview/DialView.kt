@@ -101,7 +101,7 @@ class DialView @JvmOverloads constructor(
         }
     }
 
-    fun updateContentDescription() {
+    private fun updateContentDescription() {
         contentDescription = resources.getString(fanSpeed.label)
     }
 
